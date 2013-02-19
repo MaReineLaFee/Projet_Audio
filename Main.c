@@ -19,12 +19,24 @@
 
 
 #include <stdio.h>
-#include <fftw.h>
+#include <fftw3.h>
+#include <stdlib.h>
 
 #include "./Include/Fonctions.h"
 
 int main(int argc, char **argv)
 {
+	int nombre_echantillon = 251904;
+	short vecteur_son[nombre_echantillon];
+	int i;
+	
+	lire_wav(argv[1],vecteur_son, nombre_echantillon );
+	fprintf(stderr, "j'ai lu la chanson\n");
+	
+	for (i=0; i<200 ;i++)
+	{
+		printf("%d %d \n", i, vecteur_son[i]);
+	}
 	
 	return 0;
 }
