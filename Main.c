@@ -26,32 +26,35 @@
 
 int main(int argc, char **argv)
 {
-	int nombre_echantillon = 251904;
-	short vecteur_son[nombre_echantillon];
+	int taille_header = 44;
+	
+	int nombre_echantillon = taille_wav(argv[1], taille_header);
+	printf("%d echantillons\n", nombre_echantillon);
+	
+	double vecteur_son[nombre_echantillon];
 	int i;
 	
-	lire_wav(argv[1],vecteur_son, nombre_echantillon );
+	lire_wav(argv[1],vecteur_son, nombre_echantillon, taille_header );
 	fprintf(stderr, "j'ai lu la chanson\n");
 	
 	for (i=0; i<200 ;i++)
 	{
-		printf("%d %d \n", i, vecteur_son[i]);
+		printf("%d %f \n", i, vecteur_son[i]);
 	}
 	
 	fprintf(stderr, "j'ai montre la chanson\n");
 	
-	double signal[nombre_echantillon]; //(double*)vecteur_son;
 	fftw_complex* spectre = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(nombre_echantillon/2+1));
 	
 	fprintf(stderr, "j'ai initialise les vecteurs pour le spectre\n");
 	
-	creation_spectre(nombre_echantillon, signal, spectre);
+	creation_spectre(nombre_echantillon, vecteur_son, spectre);
 	
 	fprintf(stderr, "j'ai rempli le spectre\n");
 	
 	for (i=0; i<200; i++)
 	{
-		printf("%f \n", spectre[i]);
+		printf("%lf \n", spectre[i]);
 	}
 	
 	return 0;
