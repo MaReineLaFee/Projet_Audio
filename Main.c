@@ -38,6 +38,22 @@ int main(int argc, char **argv)
 		printf("%d %d \n", i, vecteur_son[i]);
 	}
 	
+	fprintf(stderr, "j'ai montre la chanson\n");
+	
+	double signal[nombre_echantillon]; //(double*)vecteur_son;
+	fftw_complex* spectre = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(nombre_echantillon/2+1));
+	
+	fprintf(stderr, "j'ai initialise les vecteurs pour le spectre\n");
+	
+	creation_spectre(nombre_echantillon, signal, spectre);
+	
+	fprintf(stderr, "j'ai rempli le spectre\n");
+	
+	for (i=0; i<200; i++)
+	{
+		printf("%f \n", spectre[i]);
+	}
+	
 	return 0;
 }
 
