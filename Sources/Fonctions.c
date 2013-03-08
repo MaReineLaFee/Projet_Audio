@@ -1,6 +1,7 @@
 #include <fftw3.h>
 #include <stdlib.h>
 #include "../Include/Fonctions.h"
+#include <math.h>
 
 
 int taille_wav(char* titre, int taille_header)
@@ -78,7 +79,7 @@ void lire_wav(char* titre, double* vecteur_son, int nombre_echantillon, int tail
 }
 
 /** 
- * This fonction makes the spectrum of a signal
+ * This fonction makes the complex spectrum of a signal
  **/
 
 void creation_spectre(int nombre_echantillon, double* signal, fftw_complex* spectre)
@@ -97,4 +98,38 @@ void creation_spectre(int nombre_echantillon, double* signal, fftw_complex* spec
 	fftw_destroy_plan(plan);
 	fprintf(stderr, "creation_spectre : j'ai detruit le plan\n");
 
+}
+/**
+ * This function convert the complex spectrum into is module
+ **/
+
+void module_du_spectre(fftw_complex* spectre, float* module, int taille_spectre)
+{
+	int i;
+	
+	for (i=0; i<taille_spectre; i++)
+	{
+		module[i] = sqrt(spectre[i][0]*spectre[i][0] + spectre[i][1]*spectre[i][1]);
+	}
+
+}
+
+/**
+ *  Search the max of a table of sloat of a column and idim lignes 
+ */
+
+void max_search_table_float (float* tableau, int idim, float* max, int* indice)
+{
+	int i;
+	*indice = 0;
+	*max = tableau[0];
+	
+	for (i=1; i<idim; i++)
+	{
+		if (tableau[i]> *max)
+		{
+			*max=tableau[i];
+			*indice=i;
+		}
+	}
 }

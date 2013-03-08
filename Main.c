@@ -21,41 +21,65 @@
 #include <stdio.h>
 #include <fftw3.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "./Include/Fonctions.h"
 
 int main(int argc, char **argv)
 {
 	int taille_header = 44;
+	int i;
+	int j;
 	
 	int nombre_echantillon = taille_wav(argv[1], taille_header);
+	int taille_spectre = nombre_echantillon/2+1;
 	printf("%d echantillons\n", nombre_echantillon);
 	
 	double vecteur_son[nombre_echantillon];
-	int i;
+	fftw_complex* spectre = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(taille_spectre));
+	float module_spectre[taille_spectre];
+	
+	float temps_acquisition_pitch = 0.02;
+	float frequence_echantillonnage = 44100;
+	int indice_pitch = (int)(temps_acquisition_pitch*frequence_echantillonnage + 0.5);
+	printf("le nombre d'échatillon necessaire pour calculer le pitch est %d\n", indice_pitch);
+	
+	float max_spectre = 0;
+	int indice_max_spectre = 0;
+	
+	int nombre_test_possible = nombre_echantillon/indice_pitch;
+	printf("on peut faire %d tests avec cet echantillon\n", nombre_test_possible);
+	float resultat_test[nombre_test_possible];
+	float module_spectre_test[indice_pitch];
 	
 	lire_wav(argv[1],vecteur_son, nombre_echantillon, taille_header );
 	fprintf(stderr, "j'ai lu la chanson\n");
-	
-	for (i=0; i<200 ;i++)
-	{
-		printf("%d %f \n", i, vecteur_son[i]);
-	}
-	
-	fprintf(stderr, "j'ai montre la chanson\n");
-	
-	fftw_complex* spectre = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(nombre_echantillon/2+1));
-	
-	fprintf(stderr, "j'ai initialise les vecteurs pour le spectre\n");
 	
 	creation_spectre(nombre_echantillon, vecteur_son, spectre);
 	
 	fprintf(stderr, "j'ai rempli le spectre\n");
 	
-	for (i=0; i<200; i++)
+	module_du_spectre(spectre,module_spectre, taille_spectre);
+	
+	fprintf(stderr, "j'ai fait le module du spectre\n");
+	
+	// boucle de test des pitch
+	
+	for(i=0; i<nombre_test_possible; i++)
 	{
-		printf("%lf \n", spectre[i]);
+		for(j=0 ;j<indice_pitch; j++)
+		{
+			module_spectre_test[j]= module_spectre[i*indice_pitch + j];
+		}
+		
+		max_search_table_float (module_spectre_test, indice_pitch, &max_spectre, &indice_max_spectre);
+		
+		resultat_test[i] = max_spectre;
+		
+		printf("le resultat du test %d est %lf\n", i, max_spectre);
 	}
+	
+	
 	
 	return 0;
 }
