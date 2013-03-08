@@ -86,17 +86,17 @@ void creation_spectre(int nombre_echantillon, double* signal, fftw_complex* spec
 {
 	fftw_plan plan;
 	
-	fprintf(stderr, "creation_spectre : j'ai cree le plan\n");
+	//fprintf(stderr, "creation_spectre : j'ai cree le plan\n");
 	
 	plan = fftw_plan_dft_r2c_1d(nombre_echantillon, signal, spectre, FFTW_ESTIMATE | FFTW_PRESERVE_INPUT); //FFTW_FORWARD );
 	
-	fprintf(stderr, "creation_spectre : j'ai rempli le plan\n");
+	//fprintf(stderr, "creation_spectre : j'ai rempli le plan\n");
 	
 	fftw_execute(plan);
-	fprintf(stderr, "creation_spectre : j'ai execute le plan\n");
+	//fprintf(stderr, "creation_spectre : j'ai execute le plan\n");
 	
 	fftw_destroy_plan(plan);
-	fprintf(stderr, "creation_spectre : j'ai detruit le plan\n");
+	//fprintf(stderr, "creation_spectre : j'ai detruit le plan\n");
 
 }
 /**
