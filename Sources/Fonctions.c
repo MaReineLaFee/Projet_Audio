@@ -4,6 +4,7 @@
 #include <math.h>
 
 
+
 int taille_wav(char* titre, int taille_header)
 {
 	FILE* fichier;
@@ -79,6 +80,30 @@ void lire_wav(char* titre, double* vecteur_son, int nombre_echantillon, int tail
 }
 
 /** 
+ *  This fonction create a signal of sinus of 2 differents frequencies
+ *  The first half of the signal is a sinus with the first frequency (ex a standart guy frequency)
+ *  The second half of the singal is a sinus with the seconde frequency (ex a standard girl frequency)
+ */
+ 
+void signal_sinus(double* vecteur_son, int nombre_echantillon, double frequence_echantillonnage, double frequence_garcon, double frequence_fille)
+{
+	int i;
+	
+	for (i=0; i<nombre_echantillon; i++)
+	{
+		if (i<=(nombre_echantillon/2))
+		{
+			vecteur_son[i] = sin(2*M_PI*frequence_garcon*i*(1/frequence_echantillonnage));
+		}
+		
+		else
+		{
+			vecteur_son[i] = sin(2*M_PI*frequence_fille*i*(1/frequence_echantillonnage));
+		}
+	}
+}
+
+/** 
  * This fonction makes the complex spectrum of a signal
  **/
 
@@ -109,16 +134,16 @@ void module_du_spectre(fftw_complex* spectre, float* module, int taille_spectre)
 	
 	for (i=0; i<taille_spectre; i++)
 	{
-		module[i] = sqrt(spectre[i][0]*spectre[i][0] + spectre[i][1]*spectre[i][1]);
+		module[i] = sqrtf(spectre[i][0]*spectre[i][0] + spectre[i][1]*spectre[i][1]);
 	}
 
 }
 
 /**
- *  Search the max of a table of sloat of a column and idim lignes 
+ *  Search the max of a table of float of a column and idim lignes 
  */
 
-void max_search_table_float (float* tableau, int idim, float* max, int* indice)
+void max_search_table_float(float* tableau, int idim, float* max, int* indice)
 {
 	int i;
 	*indice = 0;
@@ -133,3 +158,19 @@ void max_search_table_float (float* tableau, int idim, float* max, int* indice)
 		}
 	}
 }
+
+/**
+ * This fonction take a portion of the signal from "indice_debut" and long of "taille_fenetre" samples
+ */
+ 
+ void signal_reduit_fenetre(double* vecteur_son, double* signal_fenetre, int indice_debut, int taille_fenetre)
+ {
+	 int i;
+	 int indice_balayage = 0;
+	 
+	 for(i=0; i<taille_fenetre; i++)
+	 {
+		 indice_balayage = indice_debut + i;
+		 signal_fenetre[i]=vecteur_son[indice_balayage];
+	 }
+ }
