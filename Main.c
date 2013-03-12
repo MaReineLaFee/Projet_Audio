@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 	double vecteur_son[nombre_echantillon];
 	
 	// initialisation de la recherche des pitch
-	double temps_acquisition_pitch = 0.2;
+	double temps_acquisition_pitch = 1;
 	double frequence_echantillonnage = 44100;
 	int nombre_echantillon_pitch = (int)(temps_acquisition_pitch*frequence_echantillonnage + 0.5);
 	printf("le nombre d'échantillon necessaire pour calculer le pitch est %d\n", nombre_echantillon_pitch);
@@ -67,10 +67,13 @@ int main(int argc, char **argv)
 	double frequence_garcon = 200;
 	double frequence_fille = 350;
 	
-	//lecture du wav
+	//Choix du signal d'entree
 	
-	//lire_wav(argv[1],vecteur_son, nombre_echantillon, taille_header );
-	signal_sinus(vecteur_son, nombre_echantillon, frequence_echantillonnage, frequence_garcon, frequence_fille);
+		// Wav dont le titre est l'argument d'entree
+	lire_wav(argv[1],vecteur_son, nombre_echantillon, taille_header );
+	
+		// Sinus dont les fréquence sont initialisées plus haut
+	//signal_sinus(vecteur_son, nombre_echantillon, frequence_echantillonnage, frequence_garcon, frequence_fille);
 	for(i=0; i<nombre_echantillon; i++)
 	{
 		fprintf(fichier_vecteur_son, "%f\n", vecteur_son[i]);
