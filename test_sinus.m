@@ -5,6 +5,8 @@ end
 
 vecteur_son_C = load('vecteur_son.txt');
 figure(1); plot(vecteur_son_C)
+norme = norm(vecteur_son_C,1);
+norme
 
 module_C = load('module.txt');
 figure(2); plot(module_C);

@@ -39,6 +39,9 @@ int main(int argc, char **argv)
 	// initialisation de la lecture des wav
 	int taille_header = 44;
 	int nombre_echantillon = taille_wav(argv[1], taille_header);
+	fprintf(stderr, "ligne42");
+	double nombre_echantillon_double = double(nombre_echantillon);
+	fprintf(stderr, "ligne44");
 	printf("%d echantillons\n", nombre_echantillon);
 	double vecteur_son[nombre_echantillon];
 	
@@ -46,15 +49,15 @@ int main(int argc, char **argv)
 	double temps_acquisition_pitch = 1;
 	double frequence_echantillonnage = 44100;
 	int nombre_echantillon_pitch = (int)(temps_acquisition_pitch*frequence_echantillonnage + 0.5);
-	printf("le nombre d'échantillon necessaire pour calculer le pitch est %d\n", nombre_echantillon_pitch);
+	fprintf(stderr, "le nombre d'échantillon necessaire pour calculer le pitch est %d\n", nombre_echantillon_pitch);
 	
 	// initilisation de la FFT et du module du spectre
 	int taille_spectre = nombre_echantillon_pitch/2+1;
 	fftw_complex* spectre = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(taille_spectre));
-	float module_spectre[taille_spectre];
+	double module_spectre[taille_spectre];
 	
 	// initialisation de la recherche de maximum pour un tableau
-	float max_spectre = 0;
+	double max_spectre = 0;
 	int indice_max_spectre = 0;
 	
 	// initialisation du test de pitch
@@ -70,16 +73,18 @@ int main(int argc, char **argv)
 	//Choix du signal d'entree
 	
 		// Wav dont le titre est l'argument d'entree
-	lire_wav(argv[1],vecteur_son, nombre_echantillon, taille_header );
+	//lire_wav(argv[1],vecteur_son, nombre_echantillon, taille_header );
 	
 		// Sinus dont les fréquence sont initialisées plus haut
 	//signal_sinus(vecteur_son, nombre_echantillon, frequence_echantillonnage, frequence_garcon, frequence_fille);
+	signal_gaussien(vecteur_son, nombre_echantillon, frequence_echantillonnage, (nombre_echantillon/2), (nombre_echantillon/20));
+	
+	
 	for(i=0; i<nombre_echantillon; i++)
 	{
 		fprintf(fichier_vecteur_son, "%f\n", vecteur_son[i]);
 	}
 	fprintf(stderr, "j'ai lu la chanson\n");
-
 	
 	// boucle de test des pitch
 
@@ -94,11 +99,11 @@ int main(int argc, char **argv)
 		module_du_spectre(spectre, module_spectre, taille_spectre);
 		for(j=0; j<taille_spectre; j++)
 		{
-			fprintf(fichier_module, "%lf\n", module_spectre[j]);
+			fprintf(fichier_module, "%f\n", module_spectre[j]);
 		}
 		
 		// recherche du maximum du spectre
-		max_search_table_float (module_spectre, taille_spectre, &max_spectre, &indice_max_spectre);
+		max_search_table_double(module_spectre, taille_spectre, &max_spectre, &indice_max_spectre);
 		
 		// sauvegarde et affichache du pitch
 		resultat_test[i] = (indice_max_spectre / temps_acquisition_pitch );
@@ -118,3 +123,16 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+/*
+for(i=0; i<nombre_echantillon; i++)
+	{
+		vecteur_son[i] = 2 * vecteur_son[i];
+	}
+	double norme_vecteur_son = integral_signal_echantillonne_double(vecteur_son, nombre_echantillon, frequence_echantillonnage);
+	printf( "norme vecteur_son %f\n", norme_vecteur_son);
+	
+	normalisation_signal_echantillonne_double( vecteur_son, nombre_echantillon, frequence_echantillonnage);
+	
+	double norme_vecteur_son_normalise = integral_signal_echantillonne_double(vecteur_son, nombre_echantillon, frequence_echantillonnage);
+	printf("norme vecteur_son normalise %f\n", norme_vecteur_son_normalise);
+	*/

@@ -24,7 +24,8 @@ int taille_wav(char* titre, int taille_header)
 			fseek(fichier, 0, SEEK_END);
 			size = (ftell(fichier) - taille_header )/2;
 		}
-		
+	
+	fprintf(stderr, "taille_wav : j'ai trouvé la taille\n");
 	fclose(fichier);
 	
 	return size;
@@ -128,13 +129,13 @@ void creation_spectre(int nombre_echantillon, double* signal, fftw_complex* spec
  * This function convert the complex spectrum into is module
  **/
 
-void module_du_spectre(fftw_complex* spectre, float* module, int taille_spectre)
+void module_du_spectre(fftw_complex* spectre, double* module, int taille_spectre)
 {
 	int i;
 	
 	for (i=0; i<taille_spectre; i++)
 	{
-		module[i] = sqrtf(spectre[i][0]*spectre[i][0] + spectre[i][1]*spectre[i][1]);
+		module[i] = sqrt(spectre[i][0]*spectre[i][0] + spectre[i][1]*spectre[i][1]);
 	}
 
 }
@@ -143,7 +144,7 @@ void module_du_spectre(fftw_complex* spectre, float* module, int taille_spectre)
  *  Search the max of a table of float of a column and idim lignes 
  */
 
-void max_search_table_float(float* tableau, int idim, float* max, int* indice)
+void max_search_table_double(double* tableau, int idim, double* max, int* indice)
 {
 	int i;
 	*indice = 0;
@@ -174,3 +175,60 @@ void max_search_table_float(float* tableau, int idim, float* max, int* indice)
 		 signal_fenetre[i]=vecteur_son[indice_balayage];
 	 }
  }
+ 
+ /** 
+  * This fonction create a gausian signal sampled at frequence_echantillonnage of lenght nombre_echantillon, of centrale position indice_moyenne and of relative sigma indice_sigma
+  * in the function, indice_moyenne and indice_sigma are divided by the sampled frequency to create the temporal mean and the temporal sigma
+  **/
+
+void signal_gaussien(double* vecteur_son, int nombre_echantillon, double frequence_echantillonnage, int indice_moyenne, int indice_sigma)
+{
+	int i;
+	double indice;
+	double argument;
+	double indice_moyenne_double = double(indice_moyenne);
+	double indice_sigma_double = double(indice_sigma);
+	
+	fprintf(stderr, "signal_gaussien : avant de faire ma gaussienne\n");
+	for (i=0; i<nombre_echantillon; i++)
+	{
+		indice = double(i);
+		argument = (indice - indice_moyenne_double)*(indice - indice_moyenne_double);
+		//vecteur_son[i]= (1/(sqrt(2*M_PI)*indice_sigma_double))*exp(-(1/(2*indice_sigma_double*indice_sigma_double))*argument);
+		vecteur_son[i]= (frequence_echantillonnage/(sqrt(2*M_PI)*indice_sigma_double))*exp(-(1/(2*indice_sigma_double*indice_sigma_double))*argument);
+	}
+	fprintf(stderr, "signal_gaussien : après avoir fait la gaussienne\n");
+}
+
+/**
+ * 
+ **/
+ 
+double integral_signal_echantillonne_double(double* vecteur, int taille_vecteur, double frequence_echantillonnage)
+ {
+	 int i;
+	double module=0;
+	
+	for (i=0;i<taille_vecteur;i++)
+	{
+		module=module+(vecteur[i]/frequence_echantillonnage);
+	}
+	
+	return module;
+ }
+/**
+ * This fonction compute the approximate integral of the signal vecteur sampled at the frequence_echantillonnage frequency
+ * And normalize this signal so its approximate integral is one.
+ **/
+
+void normalisation_signal_echantillonne_double(double* vecteur, int taille_vecteur, double frequence_echantillonnage)
+{
+	int i;
+	double module=integral_signal_echantillonne_double(vecteur, taille_vecteur, frequence_echantillonnage);
+	
+	for (i=0; i<taille_vecteur; i++)
+	{
+		vecteur[i] = vecteur[i]/module;
+	}
+	
+}
