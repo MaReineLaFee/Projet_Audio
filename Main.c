@@ -124,6 +124,9 @@ int main(int argc, char **argv)
 		
 		// recherche du maximum du spectre
 		max_search_table_double(module_spectre, taille_spectre, &max_spectre, &indice_max_spectre);
+		printf("le resultat du test spectre initial %d à la frequence %f\n", i, (indice_max_spectre / temps_acquisition_pitch));
+		max_search_table_double(spectre_lisse, taille_spectre, &max_spectre, &indice_max_spectre);
+
 		
 		// sauvegarde et affichache du pitch
 		resultat_test[i] = (indice_max_spectre / temps_acquisition_pitch );
@@ -134,7 +137,7 @@ int main(int argc, char **argv)
 				printf(" l'interlocuteur à changer à %f secondes\n", i*temps_acquisition_pitch);
 			}
 		}
-		printf("le resultat du test %d à la frequence %f\n", i, resultat_test[i]);
+		printf("le resultat du test spectre lisse %d à la frequence %f\n", i, resultat_test[i]);
 	}
 	
 	fclose(fichier_vecteur_son);
