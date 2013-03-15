@@ -114,7 +114,7 @@ void creation_spectre(int nombre_echantillon, double* signal, fftw_complex* spec
 	
 	//fprintf(stderr, "creation_spectre : j'ai cree le plan\n");
 	
-	plan = fftw_plan_dft_r2c_1d(nombre_echantillon, signal, spectre, FFTW_ESTIMATE | FFTW_PRESERVE_INPUT); //FFTW_FORWARD );
+	plan = fftw_plan_dft_r2c_1d(nombre_echantillon, signal, spectre, FFTW_ESTIMATE | FFTW_PRESERVE_INPUT);
 	
 	//fprintf(stderr, "creation_spectre : j'ai rempli le plan\n");
 	
@@ -194,7 +194,6 @@ void signal_gaussien(double* vecteur_son, int nombre_echantillon, double frequen
 	{
 		indice = double(i);
 		argument = (indice - indice_moyenne_double)*(indice - indice_moyenne_double);
-		//vecteur_son[i]= (1/(sqrt(2*M_PI)*indice_sigma_double))*exp(-(1/(2*indice_sigma_double*indice_sigma_double))*argument);
 		vecteur_son[i]= (frequence_echantillonnage/(sqrt(2*M_PI)*indice_sigma_double))*exp(-(1/(2*indice_sigma_double*indice_sigma_double))*argument);
 	}
 	fprintf(stderr, "signal_gaussien : après avoir fait la gaussienne\n");
@@ -231,4 +230,45 @@ void normalisation_signal_echantillonne_double(double* vecteur, int taille_vecte
 		vecteur[i] = vecteur[i]/module;
 	}
 	
+}
+/**
+ * This fonction make de cross-correlation between signal1 and signal2.
+ * They must have the same length
+ **/
+
+void convolution(double* signal1, double* signal2, double* signal_lisse, int taille_vecteur)
+{
+	int i;
+	int taille_spectre = (taille_vecteur/2+1);
+	fftw_complex* spectre_signal1 = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(taille_spectre));
+	fftw_complex* spectre_signal2 = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(taille_spectre));
+	fftw_complex* spectre_signal_lisse = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(taille_spectre));
+	fftw_plan plan;
+	//fprintf(stderr, "convolution : j'ai cree le plan\n");
+	
+	creation_spectre( taille_vecteur, signal1, spectre_signal1);
+	creation_spectre( taille_vecteur, signal1, spectre_signal2);
+	
+	
+	for(i=0; i<taille_spectre; i++)
+	{
+		spectre_signal_lisse[i][0]= spectre_signal1[i][0]*spectre_signal2[i][0] - spectre_signal1[i][1]*spectre_signal2[i][1];
+		spectre_signal_lisse[i][1]= spectre_signal1[i][0]*spectre_signal2[i][1] + spectre_signal1[i][1]*spectre_signal2[i][0];
+	}
+	
+	//fprintf(stderr, "j'ai multiplié les 2 spectres\n");
+	
+	plan = fftw_plan_dft_c2r_1d(taille_spectre, spectre_signal_lisse, signal_lisse, FFTW_ESTIMATE | FFTW_PRESERVE_INPUT);
+	
+	//fprintf(stderr, "creation_spectre : j'ai rempli le plan\n");
+	
+	fftw_execute(plan);
+	//fprintf(stderr, "creation_spectre : j'ai execute le plan\n");
+	
+	fftw_destroy_plan(plan);
+	//fprintf(stderr, "creation_spectre : j'ai detruit le plan\n");
+	
+	free(spectre_signal1);
+	free(spectre_signal2);
+	free(spectre_signal_lisse);
 }

@@ -18,3 +18,5 @@ void signal_gaussien(double* vecteur_son, int nombre_echantillon, double frequen
 double integral_signal_echantillonne_double(double* vecteur, int taille_vecteur, double frequence_echantillonnage);
 
 void normalisation_signal_echantillonne_double(double* vecteur, int taille_vecteur, double frequence_echantillonnage);
+
+void convolution(double* signal1, double* signal2, double* signal_lisse, int taille_vecteur);
