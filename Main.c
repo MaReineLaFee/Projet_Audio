@@ -32,6 +32,7 @@ int main(int argc, char **argv)
 	FILE* fichier_vecteur_son = fopen("../vecteur_son.txt", "w+");
 	FILE* fichier_module = fopen("../module.txt", "w+");
 	FILE* fichier_spectre_lisse = fopen("../spectre_lisse.txt", "w+");
+	FILE* fichier_resultats = fopen("../resultats.txt", "w+");
 	
 	// initialisation des indices de boucles
 	int i;
@@ -61,6 +62,9 @@ int main(int argc, char **argv)
 	// initialisation de la recherche de maximum pour un tableau
 	double max_spectre = 0;
 	int indice_max_spectre = 0;
+	double  max_spectre_lisse = 0;
+	int indice_max_spectre_lisse = 0;
+	int indice_energie = 0;
 	
 	// initialisation du test de pitch
 	int nombre_test_possible = nombre_echantillon/nombre_echantillon_pitch;
@@ -71,7 +75,7 @@ int main(int argc, char **argv)
 	//initialisation du lissage
 	double spectre_lisse[taille_spectre];
 	double lissage_gaussien[taille_spectre];
-	int indice_moyenne = taille_spectre/2;
+	int indice_moyenne = 0; //taille_spectre/2;
 	int indice_sigma = taille_spectre/20;
 	signal_gaussien(lissage_gaussien, taille_spectre, frequence_echantillonnage_spectre, indice_moyenne, indice_sigma);
 	
@@ -87,7 +91,6 @@ int main(int argc, char **argv)
 	
 		// Sinus dont les fréquence sont initialisées plus haut
 	//signal_sinus(vecteur_son, nombre_echantillon, frequence_echantillonnage, frequence_garcon, frequence_fille);
-	
 	
 	
 	for(i=0; i<nombre_echantillon; i++)
@@ -107,8 +110,7 @@ int main(int argc, char **argv)
 		// creation du spectre sur la fenêtre et de son module
 		creation_spectre(nombre_echantillon_pitch, signal_fenetre, spectre);
 		module_du_spectre(spectre, module_spectre, taille_spectre);
-		normalisation_signal_echantillonne_double(module_spectre, taille_spectre, frequence_echantillonnage_spectre);
-		
+		normalisation_signal_echantillonne_double(module_spectre, taille_spectre);
 		for(j=0; j<taille_spectre; j++)
 		{
 			fprintf(fichier_module, "%f\n", module_spectre[j]);
@@ -116,18 +118,27 @@ int main(int argc, char **argv)
 		
 		// lissage du spectre par covolution
 		convolution(module_spectre, lissage_gaussien, spectre_lisse, taille_spectre);
-		normalisation_signal_echantillonne_double(spectre_lisse, taille_spectre, frequence_echantillonnage_spectre);
+		normalisation_signal_echantillonne_double(spectre_lisse, taille_spectre);
 				for(j=0; j<taille_spectre; j++)
 		{
 			fprintf(fichier_spectre_lisse, "%f\n", spectre_lisse[j]);
 		}
 		
+		
 		// recherche du maximum du spectre
 		max_search_table_double(module_spectre, taille_spectre, &max_spectre, &indice_max_spectre);
-		printf("le resultat du test spectre initial %d à la frequence %f\n", i, (indice_max_spectre / temps_acquisition_pitch));
-		max_search_table_double(spectre_lisse, taille_spectre, &max_spectre, &indice_max_spectre);
-
+		max_search_table_double(spectre_lisse, taille_spectre, &max_spectre_lisse, &indice_max_spectre_lisse);
 		
+		
+		//recherche de la frequence à 30%
+		indice_energie = indice_30pourcent(taille_spectre, module_spectre);
+		
+		fprintf(fichier_resultats, "test %f seconde\n", i*temps_acquisition_pitch);
+		fprintf(fichier_resultats, "frequence max : %d\n", indice_max_spectre);
+		fprintf(fichier_resultats, "frequence max lisse : %d\n", indice_max_spectre_lisse;
+		fprintf(fichier_resultats, "frequence energie 30% : %d\n", indice_energie);
+		
+		/*
 		// sauvegarde et affichache du pitch
 		resultat_test[i] = (indice_max_spectre / temps_acquisition_pitch );
 		if (i>0)
@@ -138,11 +149,13 @@ int main(int argc, char **argv)
 			}
 		}
 		printf("le resultat du test spectre lisse %d à la frequence %f\n", i, resultat_test[i]);
+		*/
 	}
 	
 	fclose(fichier_vecteur_son);
 	fclose(fichier_module);
 	fclose(fichier_spectre_lisse);
+	fclose(fichier_resultats);
 	free(spectre);
 	
 	return 0;

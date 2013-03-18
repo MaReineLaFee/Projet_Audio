@@ -194,7 +194,7 @@ void signal_gaussien(double* vecteur_son, int nombre_echantillon, double frequen
 	{
 		indice = double(i);
 		argument = (indice - indice_moyenne_double)*(indice - indice_moyenne_double);
-		vecteur_son[i]= (frequence_echantillonnage/(sqrt(2*M_PI)*indice_sigma_double))*exp(-(1/(2*indice_sigma_double*indice_sigma_double))*argument);
+		vecteur_son[i]= (1/(sqrt(2*M_PI)*indice_sigma_double))*exp(-(1/(2*indice_sigma_double*indice_sigma_double))*argument);
 	}
 	fprintf(stderr, "signal_gaussien : après avoir fait la gaussienne\n");
 }
@@ -203,14 +203,14 @@ void signal_gaussien(double* vecteur_son, int nombre_echantillon, double frequen
  * 
  **/
  
-double integral_signal_echantillonne_double(double* vecteur, int taille_vecteur, double frequence_echantillonnage)
+double integral_signal_echantillonne_double(double* vecteur, int taille_vecteur)
  {
 	 int i;
 	double module=0;
 	
 	for (i=0;i<taille_vecteur;i++)
 	{
-		module=module+(vecteur[i]/frequence_echantillonnage);
+		module=module+vecteur[i];
 	}
 	
 	return module;
@@ -220,16 +220,18 @@ double integral_signal_echantillonne_double(double* vecteur, int taille_vecteur,
  * And normalize this signal so its approximate integral is one.
  **/
 
-void normalisation_signal_echantillonne_double(double* vecteur, int taille_vecteur, double frequence_echantillonnage)
+void normalisation_signal_echantillonne_double(double* vecteur, int taille_vecteur)
 {
 	int i;
-	double module=integral_signal_echantillonne_double(vecteur, taille_vecteur, frequence_echantillonnage);
+	double module = integral_signal_echantillonne_double(vecteur, taille_vecteur);
 	
-	for (i=0; i<taille_vecteur; i++)
+	if (module!=0)
 	{
-		vecteur[i] = vecteur[i]/module;
+		for (i=0; i<taille_vecteur; i++)
+		{
+			vecteur[i] = vecteur[i]/module;
+		}
 	}
-	
 }
 /**
  * This fonction make de cross-correlation between signal1 and signal2.
@@ -271,4 +273,25 @@ void convolution(double* signal1, double* signal2, double* signal_lisse, int tai
 	free(spectre_signal1);
 	free(spectre_signal2);
 	free(spectre_signal_lisse);
+}
+
+int indice_30pourcent(int taille_signal, double* signal)
+{
+	int i=0;
+	double somme = 0;
+	int condition=1;
+
+	while (somme < 0.3)
+	{
+		somme = somme + signal[i];
+		i=i+1;
+		
+		if (i >taille_signal)
+		{
+			break;
+		}
+	}
+	
+	
+	return i-1;
 }
